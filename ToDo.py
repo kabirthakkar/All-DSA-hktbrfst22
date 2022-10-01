@@ -1,8 +1,23 @@
+
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
+
+con = sqlite3.connect("Todo.sqlite3")
+cursor = con.cursor()
+
+cursor.execute(
+    """
+    Create Table if not exists Todo(
+        listItem text
+    )
+    """
+)
+con.commit()
+con.close()
 
 class Ui_MainWindow(object):
 
-  
     def addToList(self):
         item = self.lineEdit.text()
         if not item:
@@ -13,10 +28,21 @@ class Ui_MainWindow(object):
     def deleteItem(self):
         idx = self.toDoList.currentRow()
         self.toDoList.takeItem(idx)
+        # self.lineEdit.setText(clicked)
 
 
     def resetList(self):
         self.toDoList.clear()
+
+    def loadList(self):
+        con = sqlite3.connect("Todo.sqlite3")
+        cursor = con.cursor()
+        cursor.execute("Select listItem from Todo")
+        lst = cursor.fetchall()
+        con.close()
+        if lst:
+            for item in lst:
+                self.toDoList.addItem(item[0])
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -52,6 +78,8 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.loadList()
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -61,6 +89,21 @@ class Ui_MainWindow(object):
         self.deleteItem.setText(_translate("MainWindow", "Delete Item"))
         self.reset.setText(_translate("MainWindow", "Clear List"))
 
+    def saveList(self):
+        app.exec_()
+
+        lst = [(self.toDoList.item(i).text(),) for i in range(self.toDoList.count())]
+        com = """
+        Insert into Todo(listItem) values (?)
+        """
+
+        con = sqlite3.connect("Todo.sqlite3")
+        cursor = con.cursor()
+        cursor.execute("Delete from Todo")
+        cursor.executemany(com, lst)
+        con.commit()
+        con.close()
+
 
 if __name__ == "__main__":
     import sys
@@ -69,4 +112,4 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
-    sys.exit(app.exec_())
+    sys.exit(ui.saveList())
