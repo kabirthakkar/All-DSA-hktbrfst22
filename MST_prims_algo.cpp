@@ -69,7 +69,7 @@ int main(){
         for(int j=0; j<v; j++)
             edges[i][j] = 0;
     }
-    cout<<"Input "<<v<<" lines, each line containing three integers: \nVertex1\tVertex2\tWeight\n";
+    cout<<"Input "<<e<<" lines, each line containing three integers: \nVertex1\tVertex2\tWeight\n";
     for(int k=0; k<e; k++){
         int sv, lv, w;
         cin >> sv >> lv >> w;
